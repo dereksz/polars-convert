@@ -5,9 +5,13 @@
 import sys
 import time
 from typing import Annotated, Dict, Optional, Any
-import typer
+import typer # https://typer.tiangolo.com/
 from pathlib import Path
 import polars as pl
+
+from state import STATE
+import cmd_in
+import cmd_out
 
 # See: https://click-shell.readthedocs.io/en/latest/usage.html#factory-method
 import click
@@ -20,47 +24,13 @@ def my_app(ctx):
 
 # Back to normal `typer` code
 
-STATE: Dict[str, Any] = {}
-
 app = typer.Typer(
     no_args_is_help=False,
     pretty_exceptions_short=False,
 )
 
-@app.command("in")
-def cmd_in(
-    name: Path,
-    separator: str=",",
-    encoding: str="utf8",
-    low_memory: bool =False,
-    eol_char: str="\n",
-    quote_char: Optional[str]=None,
-    infer_schema_length: int=1_000_000,   
-):
-    STATE["IN"] = pl.scan_csv(
-        name,
-        separator=separator,
-        encoding=encoding,
-        low_memory=low_memory,
-        eol_char=eol_char,
-        quote_char=quote_char,
-        infer_schema_length=infer_schema_length,
-    )
-
-
-@app.command("out")
-def cmd_out(
-    name: Path,
-    compression="zstd"
-):
-    def out(lf: pl.LazyFrame):
-        lf.sink_parquet(
-            name,
-            compression=compression,
-        )
-
-    STATE["OUT"] = out
-
+app.add_typer(cmd_in.app, name="in")
+app.add_typer(cmd_out.app, name="out")
 
 @app.command()
 def head(rows: int):
@@ -68,8 +38,8 @@ def head(rows: int):
     STATE["IN"] = current_in.head(rows)
     
 
-@app.command("go")
-def cmd_go(timeit: bool = False):
+@app.command()
+def go(timeit: bool = False):
     _in = STATE["IN"]
     _out = STATE["OUT"]
     start = time.time()
@@ -78,6 +48,13 @@ def cmd_go(timeit: bool = False):
         end = time.time()
         print(f"Took {end-start}")
 
+    
+@app.command()
+def cat():
+    with open(STATE["OUT_FILE"], "rt") as f:
+        for line in f:
+            print(line, end="")
+    
     
 @app.callback(invoke_without_command=True)
 def base(ctx: typer.Context):
