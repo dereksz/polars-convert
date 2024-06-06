@@ -1,0 +1,8 @@
+click
+click_shell
+typer
+shellingham
+rich
+textual
+questionary
+polars
