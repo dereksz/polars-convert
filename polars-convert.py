@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
 
-# RUS AS: ./typer-test.py in typer-test.py : out t.t : go
-
 import sys
 import time
 from typing import Annotated, Dict, Optional, Any
 import typer # https://typer.tiangolo.com/
-from pathlib import Path
 import polars as pl
 
 from state import STATE
