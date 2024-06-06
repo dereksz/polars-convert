@@ -3,10 +3,11 @@
 # RUS AS: ./typer-test.py in typer-test.py : out t.t : go
 
 import sys
-from typing import Annotated, Dict, Optional
+import time
+from typing import Annotated, Dict, Optional, Any
 import typer
 from pathlib import Path
-from shutil import copyfile
+import polars as pl
 
 # See: https://click-shell.readthedocs.io/en/latest/usage.html#factory-method
 import click
@@ -19,7 +20,7 @@ def my_app(ctx):
 
 # Back to normal `typer` code
 
-STATE: Dict[str, Path] = {}
+STATE: Dict[str, Any] = {}
 
 app = typer.Typer(
     no_args_is_help=False,
@@ -27,18 +28,56 @@ app = typer.Typer(
 )
 
 @app.command("in")
-def cmd_in(name: Path):
-    STATE["IN"] = name
+def cmd_in(
+    name: Path,
+    separator: str=",",
+    encoding: str="utf8",
+    low_memory: bool =False,
+    eol_char: str="\n",
+    quote_char: Optional[str]=None,
+    infer_schema_length: int=1_000_000,   
+):
+    STATE["IN"] = pl.scan_csv(
+        name,
+        separator=separator,
+        encoding=encoding,
+        low_memory=low_memory,
+        eol_char=eol_char,
+        quote_char=quote_char,
+        infer_schema_length=infer_schema_length,
+    )
+
 
 @app.command("out")
-def cmd_out(name: Path):
-    STATE["OUT"] = name
+def cmd_out(
+    name: Path,
+    compression="zstd"
+):
+    def out(lf: pl.LazyFrame):
+        lf.sink_parquet(
+            name,
+            compression=compression,
+        )
+
+    STATE["OUT"] = out
+
+
+@app.command()
+def head(rows: int):
+    current_in : pl.LazyFrame = STATE["IN"]
+    STATE["IN"] = current_in.head(rows)
+    
 
 @app.command("go")
-def cmd_go():
+def cmd_go(timeit: bool = False):
     _in = STATE["IN"]
     _out = STATE["OUT"]
-    copyfile(_in, _out)
+    start = time.time()
+    _out(_in)
+    if timeit:
+        end = time.time()
+        print(f"Took {end-start}")
+
     
 @app.callback(invoke_without_command=True)
 def base(ctx: typer.Context):
@@ -47,6 +86,7 @@ def base(ctx: typer.Context):
         shell = make_click_shell(ctx, prompt=f'{sys.argv[0]} > ', intro='Starting up...')
         shell.cmdloop()
         typer.Exit(0)
+
 
 if __name__ == "__main__":
     # typer.run(main) # When only a single command
