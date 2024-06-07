@@ -5,7 +5,7 @@ repos:
     -   id: check-added-large-files
         args: [— maxkb=10]
     -   id: check-json
-        exclude: "^.vscode/"
+        exclude: "^.vscode/" # Because they use JSONC / Json5
     -   id: check-merge-conflict
     -   id: check-shebang-scripts-are-executable
     -   id: check-toml
