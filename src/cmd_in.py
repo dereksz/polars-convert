@@ -3,11 +3,13 @@ from pathlib import Path
 from typing import Annotated
 from typing import List
 from typing import Optional
+from typing import Union
 
 import polars as pl
 import typer
 from parse_functions import comma_list
 from polars.type_aliases import CsvEncoding
+from state import set_next_as
 from state import STATE
 
 app = typer.Typer()
@@ -33,7 +35,7 @@ def csv(
     if column_names:
         has_header = False
 
-    STATE["IN"] = pl.scan_csv(
+    _in = pl.scan_csv(
         name,
         has_header=has_header,
         new_columns=column_names,
@@ -49,6 +51,9 @@ def csv(
         null_values=null_values,
     ).rename(str.strip)
 
+    STATE["IN"] = _in
+    set_next_as(_in)
+
 
 @app.command()
 def parquet(
@@ -59,10 +64,18 @@ def parquet(
     n_rows: Optional[int] = None,
     glob: bool = True,
 ) -> None:
-    STATE["IN"] = pl.scan_parquet(
+    _in = pl.scan_parquet(
         name,
         low_memory=low_memory,
         cache=cache,
         n_rows=n_rows,
         glob=glob,
     )
+    STATE["IN"] = _in
+    set_next_as(_in)
+
+
+@app.callback(invoke_without_command=True)
+def base(sql_name: Annotated[Optional[str], typer.Option("--as")] = None) -> None:
+    if sql_name is not None:
+        STATE["NEXT_AS"] = sql_name

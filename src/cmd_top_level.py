@@ -1,14 +1,19 @@
 # -*- coding: utf-8 -*-
 import sys
 import time
+from pathlib import Path
 from typing import Annotated
+from typing import List
 from typing import Optional
 
 import cmd_in
 import cmd_out
 import polars as pl
 import typer  # https://typer.tiangolo.com/
+from multi_command import burst_lines
+from multi_command import do_multi
 from state import CONSOLE
+from state import set_as
 from state import STATE
 
 
@@ -78,19 +83,40 @@ def less(
 @app.command("as")
 def cmd_as(name: str) -> None:
     """Stores the most recent `in` data source with a name for muse in SQL."""
-    _as = STATE.get("AS")
-    if _as is None:
-        _as = {}
-        STATE["AS"] = _as
-    _as[name] = STATE["IN"]
+    set_as(name, STATE["IN"])
+
+
+@app.command()
+def sql(
+    tokens: List[str],
+) -> None:
+    """Executes SQL."""
     _sql = STATE.get("SQL")
-    if _sql is not None:
-        _sql.register(name, STATE["IN"])
+    if _sql is None:
+        _sql = pl.SQLContext(STATE["AS"])
+        STATE["SQL"] = _sql
+    lf = _sql.execute(" ".join(tokens), eager=False)
+    _out = STATE["OUT"]
+    _out(lf)
 
 
 @app.callback(invoke_without_command=True)
-def base(ctx: typer.Context) -> None:
-    if ctx.invoked_subcommand is None:
+def base(
+    ctx: typer.Context,
+    command_file: Annotated[
+        Optional[typer.FileText],
+        typer.Option(
+            "--file",
+            "-f",
+            help="Path to file to get commands, one per line.",
+        ),
+    ] = None,
+) -> None:
+    if command_file is not None:
+        if ctx.invoked_subcommand is not None:
+            raise typer.BadParameter("Can't have both commands and a command file.")
+        do_multi(app, burst_lines(command_file))
+    elif ctx.invoked_subcommand is None:
         # See: https://click-shell.readthedocs.io/en/latest/usage.html#factory-method
         from click_shell import make_click_shell
 
