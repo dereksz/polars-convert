@@ -1,5 +1,10 @@
-from typing import Optional
+# -*- coding: utf-8 -*-
+from __future__ import annotations
+
+from enum import Enum
 from pathlib import Path
+from typing import Optional
+
 import polars as pl
 import typer
 from state import STATE
@@ -7,15 +12,26 @@ from state import STATE
 
 app = typer.Typer()
 
+
+class Compression(Enum):
+    zstd = "zstd"
+
+
 @app.command()
 def parquet(
     name: Path,
-    compression="zstd"
-):
-    def out(lf: pl.LazyFrame):
+    compression: Compression = Compression.zstd,
+    compression_level: Optional[int] = None,
+    row_group_size: Optional[int] = None,
+    data_pagesize_limit: Optional[int] = None,
+) -> None:
+    def out(lf: pl.LazyFrame) -> None:
         lf.sink_parquet(
             name,
-            compression=compression,
+            compression=compression.value,
+            compression_level=compression_level,
+            row_group_size=row_group_size,
+            data_pagesize_limit=data_pagesize_limit,
         )
 
     STATE["OUT"] = out
@@ -23,13 +39,12 @@ def parquet(
 
 @app.command()
 def csv(
-    name: Optional[Path],
-):
-    def out(lf: pl.LazyFrame):
+    name: Path,
+) -> None:
+    def out(lf: pl.LazyFrame) -> None:
         lf.sink_csv(
-            name,
+            str(name),
         )
 
     STATE["OUT"] = out
     STATE["OUT_FILE"] = name
-

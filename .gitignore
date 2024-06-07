@@ -6,4 +6,4 @@ DOCS.md
 *.csv
 *.parquet
 *.feather
-data/
+data
