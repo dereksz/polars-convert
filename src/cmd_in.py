@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Annotated
 from typing import List
@@ -9,6 +7,7 @@ from typing import Optional
 import polars as pl
 import typer
 from parse_functions import comma_list
+from polars.type_aliases import CsvEncoding
 from state import STATE
 
 app = typer.Typer()
@@ -17,6 +16,7 @@ app = typer.Typer()
 @app.command()
 def csv(
     name: Path,
+    *,
     has_header: bool = True,
     column_names: Annotated[Optional[List[str]], typer.Option(parser=comma_list)] = None,
     skip_rows: int = 0,
@@ -53,6 +53,7 @@ def csv(
 @app.command()
 def parquet(
     name: Path,
+    *,
     low_memory: bool = False,
     cache: bool = False,
     n_rows: Optional[int] = None,

@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from __future__ import annotations
-
 import sys
 from collections.abc import Sequence
 from typing import List
@@ -13,9 +11,9 @@ from cmd_top_level import app
 # See: https://click-shell.readthedocs.io/en/latest/usage.html#factory-method
 
 
-@click.group()
 @click.pass_context
-def my_app(ctx: typer) -> None:
+@click.group()
+def my_app(ctx: typer.Context) -> None:
     pass
 
 

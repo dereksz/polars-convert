@@ -10,7 +10,24 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "polars-convert.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "src/polars-convert.py",
+            "console": "integratedTerminal",
             "justMyCode": false,
+            "args": ["out", "csv", "t.csv", ":", "less"]
+        },
+        {
+            "name": "p-c prompt",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "src/polars-convert.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }

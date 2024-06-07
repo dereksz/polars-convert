@@ -1,8 +1,10 @@
 click
 click_shell
-typer
-shellingham
-rich
-textual
-questionary
 polars
+questionary
+rainbowcsv
+rich
+rich_cli
+shellingham
+textual
+typer
