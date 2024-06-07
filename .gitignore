@@ -2,3 +2,8 @@
 __pycache__
 .requirements.txt.run
 DOCS.md
+*.t
+*.csv
+*.parquet
+*.feather
+data/
