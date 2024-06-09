@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from typing import List
+import typing as t
 
 
-def comma_list(raw: str) -> List[str]:
+def comma_list(raw: str) -> t.List[str]:
     return raw.split(",")

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
+import typing as t
 from enum import Enum
 from pathlib import Path
-from typing import Dict
-from typing import Optional
 
 import polars as pl
 import typer
@@ -21,9 +20,9 @@ def parquet(
     name: Path,
     *,
     compression: Compression = Compression.zstd,
-    compression_level: Optional[int] = None,
-    row_group_size: Optional[int] = None,
-    data_pagesize_limit: Optional[int] = None,
+    compression_level: t.Optional[int] = None,
+    row_group_size: t.Optional[int] = None,
+    data_pagesize_limit: t.Optional[int] = None,
 ) -> None:
     def out(lf: pl.LazyFrame) -> None:
         lf.sink_parquet(
@@ -46,10 +45,10 @@ def csv(
     line_terminator: str = "\n",
     quote_char: str = '"',
     batch_size: int = 1024,
-    datetime_format: Optional[str] = None,
-    date_format: Optional[str] = None,
-    time_format: Optional[str] = None,
-    float_precision: Optional[int] = None,
+    datetime_format: t.Optional[str] = None,
+    date_format: t.Optional[str] = None,
+    time_format: t.Optional[str] = None,
+    float_precision: t.Optional[int] = None,
 ) -> None:
     def out(lf: pl.LazyFrame) -> None:
         lf.sink_csv(

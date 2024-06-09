@@ -19,7 +19,22 @@
             "program": "src/polars-convert.py",
             "console": "integratedTerminal",
             "justMyCode": false,
-            "args": ["out", "csv", "t.csv", ":", "less"]
+            "args": [
+                "in", "--as", "lf", "csv", "/data/ny-taxi/trip/data.csv",
+                ":", "out", "csv", "t.csv",
+                ":", "select", "medallion from lf limit 3",
+                ":", "cat",
+                ":", "select", "42 from lf limit 1",
+                ":", "cat",
+            ]
+            // "args": [
+            //     "in", "--as", "lf", "csv", "/data/ny-taxi/trip/data.csv",
+            //     "out", "csv", "t.csv",
+            //     "select", "medallion from lf limit 3",
+            //     "cat",
+            //     "select", "42 from lf limit 1",
+            //     "cat",
+            // ]
         },
         {
             "name": "p-c prompt",

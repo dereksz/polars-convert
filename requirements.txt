@@ -1,4 +1,5 @@
-click
+-e ./.click
+-e ./.typer
 click_shell
 polars
 questionary
@@ -7,4 +8,3 @@ rich
 rich_cli
 shellingham
 textual
-typer

@@ -7,3 +7,6 @@ DOCS.md
 *.parquet
 *.feather
 data
+.mypy_cache/
+.click/
+.typer/

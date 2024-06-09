@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import time
-from pathlib import Path
-from typing import Annotated
-from typing import List
-from typing import Optional
+import typing as t
 
 import cmd_in
 import cmd_out
@@ -17,23 +14,23 @@ from state import set_as
 from state import STATE
 
 
-app = typer.Typer(
-    no_args_is_help=False,
-    pretty_exceptions_short=False,
-)
+app = typer.Typer(chain=":")
+
 
 app.add_typer(cmd_in.app, name="in")
 app.add_typer(cmd_out.app, name="out")
 
 
 @app.command()
-def head(rows: int) -> None:
+def head(nrows: int) -> None:
+    """Restricts the current input to just the first `nrows` lines."""
     current_in: pl.LazyFrame = STATE["IN"]
-    STATE["IN"] = current_in.head(rows)
+    STATE["IN"] = current_in.head(nrows)
 
 
 @app.command()
 def go(timeit: bool = False) -> None:
+    """When specifying just `in` and `out`, causes one to be streamed to the other."""
     _in = STATE["IN"]
     _out = STATE["OUT"]
     start = time.time()
@@ -45,10 +42,12 @@ def go(timeit: bool = False) -> None:
 
 @app.command()
 def cat(
-    colour: Annotated[bool, typer.Option("--colour", "--color")] = False,
+    colour: t.Annotated[bool, typer.Option("--colour", "--color")] = False,
     table: bool = False,
-    max_width: Optional[int] = None,
+    max_width: t.Optional[int] = None,
 ) -> None:
+    """Displays the last `go` / `select` / `sql` output to the console,
+    with optional colourisation and / or tabulation."""
     if colour:
         from rainbowcsv.__main__ import rainbow_csv, CsvDetails
 
@@ -62,12 +61,13 @@ def cat(
 
 @app.command("less")
 def less(
-    head: Optional[int] = None,
-    tail: Optional[int] = None,
+    head: t.Optional[int] = None,
+    tail: t.Optional[int] = None,
     title: str = "",
     caption: str = "",
-    width: Optional[int] = None,
+    width: t.Optional[int] = None,
 ) -> None:
+    """Displays the last `go` / `select` / `sql` output in a pager."""
     from rich_cli.pager import PagerApp, PagerRenderable
     from rich_cli.__main__ import render_csv
 
@@ -86,10 +86,7 @@ def cmd_as(name: str) -> None:
     set_as(name, STATE["IN"])
 
 
-@app.command()
-def sql(
-    tokens: List[str],
-) -> None:
+def do_sql(*tokens: str) -> None:
     """Executes SQL."""
     _sql = STATE.get("SQL")
     if _sql is None:
@@ -100,11 +97,35 @@ def sql(
     _out(lf)
 
 
+@app.command()
+def sql(tokens: t.List[str]) -> None:
+    """Executes SQL."""
+    do_sql(*tokens)
+
+
+@app.command()
+def select(tokens: t.List[str]) -> None:
+    """Executes Select.
+
+    A slightly briefer form of `sql`.
+    """
+    do_sql("select", *tokens)
+
+
+@app.command()
+def source(command_file: typer.FileText) -> None:
+    """Source commands from given file.
+
+    An alternative to the `-f` option.
+    """
+    do_multi(app, burst_lines(command_file))
+
+
 @app.callback(invoke_without_command=True)
 def base(
     ctx: typer.Context,
-    command_file: Annotated[
-        Optional[typer.FileText],
+    command_file: t.Annotated[
+        t.Optional[typer.FileText],
         typer.Option(
             "--file",
             "-f",

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+import shlex
 import sys
-from collections.abc import Generator
 from collections.abc import Iterable
 from collections.abc import Sequence
 
@@ -27,7 +27,7 @@ def do_one(app: Typer, argv: Sequence[str]) -> None:
 
 def burst_lines(
     line_generator: Iterable[str],
-) -> Generator[Sequence[str], None, None]:
+) -> Iterable[Sequence[str]]:
     for line in line_generator:
         if line:
-            yield line.split()
+            yield shlex.split(line)
