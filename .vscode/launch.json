@@ -20,12 +20,19 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "in", "--as", "lf", "csv", "/data/ny-taxi/trip/data.csv",
+
+                "in", "--as", "data", "parquet", "data.parquet",
                 ":", "out", "csv", "t.csv",
-                ":", "select", "medallion from lf limit 3",
-                ":", "cat",
-                ":", "select", "42 from lf limit 1",
-                ":", "cat",
+                ":", "select", "count(*) as count from data"
+                ":", "cat"
+
+                // "in", "--as", "lf", "csv", "data/trip/data.csv",
+                // ":", "out", "parquet", "data.parquet",
+
+                // ":", "select", "medallion from lf limit 3",
+                // ":", "cat",
+                // ":", "select", "42 from lf limit 1",
+                ":", "go --timeit",
             ]
             // "args": [
             //     "in", "--as", "lf", "csv", "/data/ny-taxi/trip/data.csv",

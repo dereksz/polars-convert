@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import typing as t
-from enum import Enum
+from enum import Enum, StrEnum, auto
 from pathlib import Path
 
 import polars as pl
@@ -11,23 +11,35 @@ from state import STATE
 app = typer.Typer()
 
 
-class Compression(Enum):
-    zstd = "zstd"
+class Compression(StrEnum):
+    """Compression options for Parquet."""
+    # pylint: disable=invalid-name
+    zstd = auto()
+    lz4 = auto()
+    uncompressed = auto()
+    snappy = auto()
+    gzip = auto()
+    lzo = auto()
+    brotli = auto()
 
 
 @app.command()
 def parquet(
     name: Path,
     *,
-    compression: Compression = Compression.zstd,
+    compression: Compression = "zstd",
     compression_level: t.Optional[int] = None,
     row_group_size: t.Optional[int] = None,
     data_pagesize_limit: t.Optional[int] = None,
 ) -> None:
+    """Set up output to named parquet file with options.
+
+    Still needs a `go` - or another "immediate" command - to perform execution.
+    """
     def out(lf: pl.LazyFrame) -> None:
         lf.sink_parquet(
             name,
-            compression=compression.value,
+            compression=compression.name,
             compression_level=compression_level,
             row_group_size=row_group_size,
             data_pagesize_limit=data_pagesize_limit,
@@ -50,6 +62,10 @@ def csv(
     time_format: t.Optional[str] = None,
     float_precision: t.Optional[int] = None,
 ) -> None:
+    """Set up output to named CSV file with options.
+
+    Still needs a `go` - or another "immediate" command - to perform execution.
+    """
     def out(lf: pl.LazyFrame) -> None:
         lf.sink_csv(
             name,

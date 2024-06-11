@@ -22,16 +22,13 @@ def result_callback(
     _in: pl.LazyFrame
     name, _in = args
     set_as(sql_name or name.name, _in)
+    STATE["IN"] = _in
 
 
 app = typer.Typer(
     result_callback=result_callback,
 )
 
-
-@app.callback(invoke_without_command=False)
-def base(sql_name: t.Annotated[t.Optional[str], typer.Option("--as")] = None) -> None:
-    pass  # the `sql_name` will get passed to `result_callback`
 
 
 @app.command()

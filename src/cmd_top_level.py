@@ -3,6 +3,8 @@ import sys
 import time
 import typing as t
 
+from rich import inspect
+
 import cmd_in
 import cmd_out
 import polars as pl
@@ -86,13 +88,17 @@ def cmd_as(name: str) -> None:
     set_as(name, STATE["IN"])
 
 
-def do_sql(*tokens: str) -> None:
+def do_sql(*tokens: str) -> pl.LazyFrame:
     """Executes SQL."""
     _sql = STATE.get("SQL")
     if _sql is None:
         _sql = pl.SQLContext(STATE["AS"])
         STATE["SQL"] = _sql
     lf = _sql.execute(" ".join(tokens), eager=False)
+    return lf
+
+
+def lf_out(lf: pl.LazyFrame) -> None:
     _out = STATE["OUT"]
     _out(lf)
 
@@ -100,7 +106,8 @@ def do_sql(*tokens: str) -> None:
 @app.command()
 def sql(tokens: t.List[str]) -> None:
     """Executes SQL."""
-    do_sql(*tokens)
+    lf = do_sql(*tokens)
+    lf_out(lf)
 
 
 @app.command()
@@ -109,7 +116,24 @@ def select(tokens: t.List[str]) -> None:
 
     A slightly briefer form of `sql`.
     """
-    do_sql("select", *tokens)
+    lf = do_sql("select", *tokens)
+    lf_out(lf)
+
+
+@app.command()
+def select1(tokens: t.List[str]) -> None:
+    """Executes Select.  Expects just 1-row returned."""
+    lf = do_sql("select", *tokens)
+    result: pl.DataFrame = lf.collect()
+    print(result.glimpse())
+
+
+@app.command()
+def count() -> None:
+    """Get row count."""
+    lf = STATE["IN"]
+    _count = lf.select(pl.len()).collect().item()
+    print(format(_count, ","))
 
 
 @app.command()
