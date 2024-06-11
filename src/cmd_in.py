@@ -36,17 +36,17 @@ def csv(
     name: Path,
     *,
     has_header: bool = True,
-    column_names: t.Annotated[t.Optional[t.List[str]], typer.Option(parser=comma_list)] = None,
+    column_names: t.Annotated[t.Optional[str], typer.Option(parser=comma_list)] = None,
     skip_rows: int = 0,
     separator: str = ",",
     encoding: str = "utf8",
     low_memory: bool = False,
     eol_char: str = "\n",
     quote_char: t.Optional[str] = None,
-    infer_schema_length: int = 1_000_000,
+    infer_schema_length: int = 250_000,
     glob: bool = True,
     comment_prefix: t.Optional[str] = None,
-    null_values: t.Annotated[t.Optional[t.List[str]], typer.Option(parser=comma_list)] = None,
+    null_values: t.Annotated[t.Optional[str], typer.Option(parser=comma_list)] = None,
 ) -> result_type:
     if column_names:
         has_header = False
