@@ -8,13 +8,13 @@ import cmd_out
 import polars as pl
 import typer  # https://typer.tiangolo.com/
 from multi_command import burst_lines
-from multi_command import do_multi
+from multi_command import do_multi_no_ok_exit
 from state import CONSOLE
 from state import set_as
 from state import STATE
 
 
-app = typer.Typer(chain=":")
+app = typer.Typer()
 
 
 app.add_typer(cmd_in.app, name="in")
@@ -118,7 +118,7 @@ def source(command_file: typer.FileText) -> None:
 
     An alternative to the `-f` option.
     """
-    do_multi(app, burst_lines(command_file))
+    do_multi_no_ok_exit(app, burst_lines(command_file))
 
 
 @app.callback(invoke_without_command=True)
@@ -136,7 +136,7 @@ def base(
     if command_file is not None:
         if ctx.invoked_subcommand is not None:
             raise typer.BadParameter("Can't have both commands and a command file.")
-        do_multi(app, burst_lines(command_file))
+        do_multi_no_ok_exit(app, burst_lines(command_file))
     elif ctx.invoked_subcommand is None:
         # See: https://click-shell.readthedocs.io/en/latest/usage.html#factory-method
         from click_shell import make_click_shell
