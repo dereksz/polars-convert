@@ -5,7 +5,6 @@ from pathlib import Path
 import polars as pl
 import typer
 from parse_functions import comma_list
-from polars.type_aliases import CsvEncoding
 from state import set_as
 from state import STATE
 
@@ -30,9 +29,17 @@ app = typer.Typer(
 )
 
 
+@app.callback(invoke_without_command=False)
+def base(
+    # pylint: disable=unused-argument
+    sql_name: t.Annotated[t.Optional[str], typer.Option("--as")] = None
+) -> None:
+    """the `sql_name` will get passed to `result_callback`"""
+
 
 @app.command()
 def csv(
+    # pylint: disable=too-many-arguments
     name: Path,
     *,
     has_header: bool = True,
@@ -48,6 +55,7 @@ def csv(
     comment_prefix: t.Optional[str] = None,
     null_values: t.Annotated[t.Optional[str], typer.Option(parser=comma_list)] = None,
 ) -> result_type:
+    """Define CSV file to read and it's format."""
     if column_names:
         has_header = False
 
@@ -79,6 +87,7 @@ def parquet(
     n_rows: t.Optional[int] = None,
     glob: bool = True,
 ) -> result_type:
+    """Define Parquet file to read and how to read it."""
     _in = pl.scan_parquet(
         name,
         low_memory=low_memory,
