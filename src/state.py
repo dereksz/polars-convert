@@ -13,6 +13,7 @@ ERROR_CONSOLE = Console(stderr=True)
 
 class State(t.TypedDict, total=False):
     IN: pl.LazyFrame
+    IN_FILE: Path
     NEXT_AS: str
     OUT: t.Callable[[pl.LazyFrame], None]
     OUT_FILE: Path

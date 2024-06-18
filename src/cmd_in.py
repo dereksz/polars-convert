@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from enum import StrEnum, auto
 import typing as t
 from pathlib import Path
 
@@ -22,6 +23,7 @@ def result_callback(
     name, _in = args
     set_as(sql_name or name.name, _in)
     STATE["IN"] = _in
+    STATE["IN_FILE"] = name
 
 
 app = typer.Typer(
@@ -37,6 +39,11 @@ def base(
     """the `sql_name` will get passed to `result_callback`"""
 
 
+class Encoding(StrEnum):
+    utf8 = auto()
+    utf8_lossy = "utf8-lossy"
+
+
 @app.command()
 def csv(
     # pylint: disable=too-many-arguments
@@ -46,7 +53,7 @@ def csv(
     column_names: t.Annotated[t.Optional[str], typer.Option(parser=comma_list)] = None,
     skip_rows: int = 0,
     separator: str = ",",
-    encoding: str = "utf8",
+    encoding: Encoding = Encoding.utf8,
     low_memory: bool = False,
     eol_char: str = "\n",
     quote_char: t.Optional[str] = None,
@@ -65,7 +72,7 @@ def csv(
         new_columns=column_names,
         skip_rows=skip_rows,
         separator=separator,
-        encoding=encoding,
+        encoding=encoding, # type: ignore [arg-type]
         low_memory=low_memory,
         eol_char=eol_char,
         quote_char=quote_char,

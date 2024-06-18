@@ -51,7 +51,7 @@ def cat(
     """Displays the last `go` / `select` / `sql` output to the console,
     with optional colourisation and / or tabulation."""
     if colour:
-        from rainbowcsv.__main__ import rainbow_csv, CsvDetails
+        from rainbowcsv.__main__ import rainbow_csv, CsvDetails # type: ignore [import-untyped]
 
         details = CsvDetails(STATE["OUT_FILE"], STATE["OUT_DELIM"], table, max_width or CONSOLE.width - 1)
         rainbow_csv(details)
@@ -70,8 +70,8 @@ def less(
     width: t.Optional[int] = None,
 ) -> None:
     """Displays the last `go` / `select` / `sql` output in a pager."""
-    from rich_cli.pager import PagerApp, PagerRenderable
-    from rich_cli.__main__ import render_csv
+    from rich_cli.pager import PagerApp, PagerRenderable # type: ignore [import-untyped]
+    from rich_cli.__main__ import render_csv # type: ignore [import-untyped]
 
     out_fn = str(STATE["OUT_FILE"])
     if width is None:
@@ -163,7 +163,7 @@ def base(
         do_multi_no_ok_exit(app, burst_lines(command_file))
     elif ctx.invoked_subcommand is None:
         # See: https://click-shell.readthedocs.io/en/latest/usage.html#factory-method
-        from click_shell import make_click_shell
+        from click_shell import make_click_shell # type: ignore [import-untyped]
 
         shell = make_click_shell(ctx, prompt=f"{sys.argv[0]} > ", intro="Starting up...")
         shell.cmdloop()

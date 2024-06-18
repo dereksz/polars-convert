@@ -8,7 +8,22 @@ import typer
 from state import STATE
 
 
-app = typer.Typer()
+OUT_FUNCTION = t.Callable[[pl.LazyFrame], None]
+RESULT_TYPE = t.Tuple[Path, OUT_FUNCTION]
+
+
+def result_callback(args: RESULT_TYPE) -> None:
+    """Common post-processing after an `out` has been created."""
+    name: Path
+    _out: OUT_FUNCTION
+    name, _out = args
+    STATE["OUT"] = _out
+    STATE["OUT_FILE"] = name
+
+
+app = typer.Typer(
+    result_callback=result_callback,
+)
 
 
 class Compression(StrEnum):
@@ -27,11 +42,11 @@ class Compression(StrEnum):
 def parquet(
     name: Path,
     *,
-    compression: Compression = "zstd",
+    compression: Compression = Compression.zstd,
     compression_level: t.Optional[int] = None,
     row_group_size: t.Optional[int] = None,
     data_pagesize_limit: t.Optional[int] = None,
-) -> None:
+) -> RESULT_TYPE:
     """Set up output to named parquet file with options.
 
     Still needs a `go` - or another "immediate" command - to perform execution.
@@ -45,7 +60,7 @@ def parquet(
             data_pagesize_limit=data_pagesize_limit,
         )
 
-    STATE["OUT"] = out
+    return name, out
 
 
 @app.command()
@@ -61,7 +76,7 @@ def csv(
     date_format: t.Optional[str] = None,
     time_format: t.Optional[str] = None,
     float_precision: t.Optional[int] = None,
-) -> None:
+) -> RESULT_TYPE:
     """Set up output to named CSV file with options.
 
     Still needs a `go` - or another "immediate" command - to perform execution.
@@ -80,6 +95,5 @@ def csv(
             float_precision=float_precision,
         )
 
-    STATE["OUT"] = out
-    STATE["OUT_FILE"] = name
     STATE["OUT_DELIM"] = separator
+    return name, out

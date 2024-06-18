@@ -2,12 +2,13 @@
 
 .venv:
 	python3.11 -m venv --system-site-packages .venv
+	rm -f .pip
 
-.requirements.txt.run: requirements-dev.txt requirements.txt
-	pip install -r "$<"
+.pip: requirements-dev.txt requirements.txt .venv
+	.venv/bin/python -m pip install -r "$<"
 	touch "$@"
 
-pip: .venv .typer .click .requirements.txt.run
+pip: .venv .typer .click .pip
 	# no-op
 
 # Packages that I want to have locally installed

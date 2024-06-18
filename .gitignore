@@ -1,6 +1,6 @@
 .venv
 __pycache__
-.requirements.txt.run
+.pip
 DOCS.md
 *.t
 *.csv
@@ -10,3 +10,4 @@ data
 .mypy_cache/
 .click/
 .typer/
+.ydata_profing/
