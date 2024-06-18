@@ -11,3 +11,4 @@ data
 .click/
 .typer/
 .ydata_profing/
+*.ndjson

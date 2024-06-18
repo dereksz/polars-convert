@@ -1,0 +1,15 @@
+transport:
+  type: file
+  log_file_path: ./lineage.ndjson
+  append: true
+
+# transport:
+#   type: http
+#   url: http://localhost:5000
+#   endpoint: api/v1/lineage
+#   timeout: 5
+#   verify: false
+#   # auth:
+#   #   type: api_key
+#   #   apiKey: f048521b-dfe8-47cd-9c65-0cb07d57591e
+#   # compression: gzip

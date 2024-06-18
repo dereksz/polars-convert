@@ -1,6 +1,7 @@
 -e ./.click
 -e ./.typer
 click_shell
+openlineage-python
 polars
 questionary
 rainbowcsv
