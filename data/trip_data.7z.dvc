@@ -1,0 +1,5 @@
+outs:
+- md5: f03d0a7749f44db2a8999cc592e2c828
+  size: 4102781969
+  hash: md5
+  path: trip_data.7z

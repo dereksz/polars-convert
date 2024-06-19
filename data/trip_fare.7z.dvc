@@ -1,0 +1,12 @@
+md5: dae4226e72f75dacddadb022b735f2dc
+frozen: true
+deps:
+- checksum: '"53a44c7f-6673411b"'
+  size: 1718829339
+  hash: md5
+  path: https://ia902202.us.archive.org/28/items/nycTaxiTripData2013/trip_fare.7z
+outs:
+- md5: 52cf3fdfc2af2705db40fc1cd5d6b079
+  size: 1718829339
+  hash: md5
+  path: trip_fare.7z
